@@ -1,0 +1,5 @@
+[requires]
+glfw3/3.2.1@lasote/vcpkg
+
+[generators]
+cmake
