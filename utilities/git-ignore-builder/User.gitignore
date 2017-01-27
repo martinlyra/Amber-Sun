@@ -1,0 +1,11 @@
+
+# Files created by this project's CMake configuration
+source/
+*.sln
+*.vcxproj
+*.filters
+
+# Conan
+# conanfile.txt is REQUIRED
+conaninfo.txt
+conanbuildinfo.cmake
