@@ -1,6 +1,5 @@
 
 # Files created by this project's CMake configuration
-source/
 *.sln
 *.vcxproj
 *.filters
