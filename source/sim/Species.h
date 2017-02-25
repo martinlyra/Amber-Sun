@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stdinc.h" 
+#include "shared/stdinc.h" 
 
 class Species {
 
