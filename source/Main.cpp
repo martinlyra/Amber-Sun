@@ -1,9 +1,26 @@
-#define GLFW_INCLUDE_VULKAN
 //#define VULKAN_HPP_NO_EXCEPTIONS
 #include <vulkan\vulkan.hpp>
-#include <GLFW\glfw3.h>
 
 #include <iostream>
+
+#include "graphics\GraphicsManager.h"
+
+GraphicsManager* gmanager;
+
+void Initialize()
+{
+	gmanager = new GraphicsManager();
+
+	gmanager->Initialize();
+}
+
+void RunOrDie()
+{
+	while (true)
+	{
+		gmanager->DrawFrame();
+	}
+}
 
 int main()
 {
@@ -15,7 +32,7 @@ int main()
 	appInfo.setPApplicationName( "Amber-Sun" );
 	appInfo.setPEngineName( nullptr );
 	appInfo.setEngineVersion( 1 );
-	appInfo.setApiVersion( VK_VERSION_1_0 );
+	appInfo.setApiVersion( VK_MAKE_VERSION(1,0,33) );
 
 	createInfo.setSType( vk::StructureType::eInstanceCreateInfo );
 	createInfo.setPNext( nullptr );
