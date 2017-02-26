@@ -7,6 +7,7 @@ conan_basic_setup()
 link_directories($ENV{VK_SDK_PATH}/bin)
 
 add_subdirectory(source/shared)
+add_subdirectory(source/maths)
 add_subdirectory(source/utils)
 
 add_subdirectory(source/renderer)
