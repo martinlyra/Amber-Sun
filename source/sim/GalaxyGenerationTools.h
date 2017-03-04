@@ -1,8 +1,8 @@
 #pragma once
 
-#include "shared\stdinc.h"
+#include "shared/stdinc.h"
 
-#include "core\Vector3f.h"
+#include "core/Vector3f.h"
 
 namespace GalaxyGenerationTools {
 	

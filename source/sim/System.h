@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared\stdinc.h"
+#include "shared/stdinc.h"
 
 class System {
 

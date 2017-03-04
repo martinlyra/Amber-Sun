@@ -1,13 +1,13 @@
 #pragma once
 
-#include "shared\stdinc.h"
+#include "shared/stdinc.h"
 
-#include "core\Vector3f.h"
+#include "core/Vector3f.h"
 
-#include "sim\UniverseSetupData.h"
+#include "sim/UniverseSetupData.h"
 
-#include "sim\System.h"
-#include "sim\Universe.h"
+#include "sim/System.h"
+#include "sim/Universe.h"
 
 class UniverseGenerator {
 

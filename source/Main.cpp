@@ -1,16 +1,26 @@
+#ifdef USE_VULKAN
 //#define VULKAN_HPP_NO_EXCEPTIONS
-#include <vulkan\vulkan.hpp>
+#include <vulkan/vulkan.hpp>
+#endif
+
+#ifdef USE_GLM
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#endif
 
 #include <iostream>
 
-#include "graphics\GraphicsManager.h"
+#include "graphics/GraphicsManager.h"
+
+#include "maths/Matrix4.h"
 
 GraphicsManager* gmanager;
 
 void Initialize()
 {
 	gmanager = new GraphicsManager();
-
 	gmanager->Initialize();
 }
 
@@ -24,6 +34,7 @@ void RunOrDie()
 
 int main()
 {
+#ifdef USE_VULKAN
 	vk::ApplicationInfo appInfo = {};
 	vk::InstanceCreateInfo createInfo = {};
 
@@ -59,5 +70,64 @@ int main()
 
 	instance.destroy();
 
+#endif
+#ifdef USE_GLM
+	auto pers = glm::perspectiveRH<float>(glm::radians(60.0f), 1024/768, 0.1f, 100.0f);
+	auto view = glm::lookAtRH(glm::vec3(4,3,3), glm::vec3(0, 0, 0),  glm::vec3(0, 1, 0));
+	auto model = glm::mat4(1.0f);
+	
+	auto vm = view * model;
+	auto mvp = pers * vm;
+
+	auto v1 = mvp * glm::vec4(-1.0f, -1.0f, 0.0f, 1);
+	auto v2 = mvp * glm::vec4(1.0f, -1.0f, 0.0f,  1);
+	auto v3 = mvp * glm::vec4(0.0f, 1.0f, 0.0f,  1);
+
+	/*
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::printf("%f:", pers[i][j]);
+		std::printf("\n");
+	}
+	
+	std::printf("-----------\n");
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::printf("%f:", view[i][j]);
+		std::printf("\n");
+	}
+	std::printf("-----------\n");
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::printf("%f:", model[i][j]);
+		std::printf("\n");
+	}
+	std::printf("VP Matrix:\n");
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::printf("%f:", vm[i][j]);
+		std::printf("\n");
+	}*/
+	std::printf("-----------\n");
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+			std::printf("%f:", mvp[i][j]);
+		std::printf("\n");
+	}
+	
+	std::printf("-----------\n");
+	std::printf("%f:%f:%f:%f\n", v1[0], v1[1], v1[2], v1[3]);
+	std::printf("%f:%f:%f:%f\n", v2[0], v2[1], v2[2], v2[3]);
+	std::printf("%f:%f:%f:%f\n", v3[0], v3[1], v3[2], v3[3]);
+# endif
+		
+	Initialize();
+	RunOrDie();
+	
 	return 0;
 }
