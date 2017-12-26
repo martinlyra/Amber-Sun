@@ -4,11 +4,18 @@ from os.path import isfile, join, splitext
 import os
 import os.path
 
+# Author: Martin Lyrå
+# Versions
+#
+# 0.0.2 (Dec 26, 2017) - Tweaked formatting; added lines and "END of" comment
+# 0.0.1 (Jan 27, 2017) - Created
 
 def main():
     """
     Merges one or two, or more, named .gitignore files in a directory into one
-    Version 0.0.1
+	Currently work in working directory only
+	
+    Version: 0.0.2 (Dec 26, 2017)
     """
     path = os.getcwd() # get current working directory
 
@@ -23,8 +30,9 @@ def main():
     content = ""
     for f in files:
         file = open(f)
-        content += "\n\n# " + os.path.basename(f) + "\n\n"
+        content += "\n# " + os.path.basename(f) + "\n# ------------------------\n"
         content += file.read()
+        content += "\n\n# ------------------------\n# END of " + os.path.basename(f) + "\n"
         file.close()
 
     # write content to .gitignore file

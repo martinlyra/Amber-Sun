@@ -1,0 +1,3 @@
+
+# CLion (IDE by Jetbrains) specific ignore
+cmake-build-debug
