@@ -12,23 +12,43 @@
 
 #include <iostream>
 
+#include "graphics/Graphics.h"
 #include "graphics/GraphicsManager.h"
+#include "utils/Timer.h"
 
 #include "maths/Matrix4.h"
 
+bool quit = false;
 GraphicsManager* gmanager;
 
 void Initialize()
 {
-	gmanager = new GraphicsManager();
-	gmanager->Initialize();
+    TIMER("Initialize");
+
+    //gmanager = new GraphicsManager();
+    //gmanager->Initialize();
+
+
+	if (! Graphics::Initialize())
+	{
+		std::printf("You broke it, fam\n");
+		exit(1);
+	}
+}
+
+void Frame()
+{
+	// Update time here
+
+	//gmanager->DrawFrame();
+	Graphics::DrawFrame();
 }
 
 void RunOrDie()
 {
-	while (true)
+	while (!quit)
 	{
-		gmanager->DrawFrame();
+		Frame();
 	}
 }
 

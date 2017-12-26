@@ -2,6 +2,7 @@
 
 #include "glad.h"
 
+#include "Input.h"
 #include "maths/Matrix4.h"
 #include "maths/Vector4.h"
 
@@ -11,25 +12,25 @@
 
 GLFWwindow* window;
 
-GLuint vertexArrayObjectId;
-GLuint vertexBufferObjectId;
+GLuint vertexArrayObjectId_;
+GLuint vertexBufferObjectId_;
 
-Matrix4<double> modelMatrix; 
-Matrix4<double> viewMatrix;
-Matrix4<double> perspectiveMatrix;
+Matrix4<double> modelMatrix_;
+Matrix4<double> viewMatrix_;
+Matrix4<double> perspectiveMatrix_;
 
-Matrix4<double> transformMatrix;
+Matrix4<double> transformMatrix_;
 
-static const Vector4<double> vertexBufferData[] =
+static const Vector4<double> vertexBufferData_[] =
 {
 	Vector4<double>(-1.0f, -1.0f, 0.0f, 1),
 	Vector4<double>(1.0f, -1.0f, 0.0f, 1),
 	Vector4<double>(0.0f, 1.0f, 0.0f, 1)
 };
 
-void SubmitBufferData()
+void SubmitBufferData2()
 {
-	int len = sizeof(vertexBufferData)/sizeof(vertexBufferData[0]);
+	int len = sizeof(vertexBufferData_)/sizeof(vertexBufferData_[0]);
 	//std::printf("Buffer data size: %u\n", len);
 	
 	int bufferSize = len * 3;
@@ -37,15 +38,15 @@ void SubmitBufferData()
 	for (int i = 0; i < len; i++)
 	{
 		//auto tv = vertexBufferData[i];
-		auto tv = transformMatrix * vertexBufferData[i];
+		auto tv = transformMatrix_ * vertexBufferData_[i];
 		vertexBuffer[i*3 + 0] = tv.x;
 		vertexBuffer[i*3 + 1] = tv.y;
 		vertexBuffer[i*3 + 2] = tv.z;
 		
-		//std::printf("%f:%f:%f:%f\n", tv.x, tv.y, tv.z, tv.w);
+		std::printf("%f:%f:%f:%f\n", tv.x, tv.y, tv.z, tv.w);
 	}
 	
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjectId);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjectId_);
 	glBufferData(GL_ARRAY_BUFFER, bufferSize, vertexBuffer, GL_STATIC_DRAW);
 };
 
@@ -72,35 +73,43 @@ void GraphicsManager::Initialize()
 		std::printf("GLFW failed to create a window. %s:%i\n", __FILE__,  __LINE__);
 	
 	glfwMakeContextCurrent(window);
+
+    glfwSetKeyCallback(window, &Input::KeyCallback);
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
 	
 	if (!gladLoadGL())
 		std::printf("Glad has failed to load OGL. %s:%i\n", __FILE__,  __LINE__);
 
-	glGenVertexArrays( 1, &vertexArrayObjectId );
-	glBindVertexArray( vertexArrayObjectId );
+	glGenVertexArrays( 1, &vertexArrayObjectId_ );
+	glBindVertexArray( vertexArrayObjectId_ );
 
-	glGenBuffers( 1, &vertexBufferObjectId );
-	glBindBuffer( GL_ARRAY_BUFFER, vertexBufferObjectId );
+	glGenBuffers( 1, &vertexBufferObjectId_ );
+	glBindBuffer( GL_ARRAY_BUFFER, vertexBufferObjectId_ );
 	
 	int width, height;
 	glfwGetWindowSize( window, &width, &height );
 	glViewport( 0, 0, width, height );
 
-	perspectiveMatrix = Matrix4<double>::Perspective(60.0f, width/height, 0.1f, 100.0f);
-	viewMatrix = Matrix4<double>::LookAt(
-		Vector4<double>(4,0,3,1),
-		Vector4<double>(0,0,0,1), 
-		Vector4<double>(0,1,0,0));
-	modelMatrix = Matrix4<double>();
-	modelMatrix.SetAsIdentity();
+	perspectiveMatrix_ = Matrix4<double>::Perspective(60.0f, width/height, 0.1f, 100.0f);
+
+	viewMatrix_ = Matrix4<double>::LookAt(
+		Vector4<double>(8,3,3,1),  // camera/eye
+		Vector4<double>(0,0,0,1),  // target
+		Vector4<double>(0,1,0,0)); // up
+	viewMatrix_.Inverse();
+
+	modelMatrix_ = Matrix4<double>();
+	modelMatrix_.SetAsIdentity();
 	
-	transformMatrix = modelMatrix * viewMatrix * perspectiveMatrix;
+	transformMatrix_ = modelMatrix_ * viewMatrix_ * perspectiveMatrix_;
 	
-	SubmitBufferData();
+	SubmitBufferData2();
 }
 
 void GraphicsManager::DrawFrame()
 {
+    glfwPollEvents();
+
 	BeginDraw();
 	Draw();
 	EndDraw();
@@ -118,11 +127,11 @@ void GraphicsManager::Draw()
 	
 	glBegin(GL_TRIANGLES);
 	
-	int len = sizeof(vertexBufferData)/sizeof(vertexBufferData[0]);
+	int len = sizeof(vertexBufferData_)/sizeof(vertexBufferData_[0]);
 	for (int i = 0; i < len; i++)
 	{
 		//auto v = vertexBufferData[i];
-		auto v = transformMatrix * vertexBufferData[i];
+		auto v = transformMatrix_ * vertexBufferData_[i];
 		glVertex4d(v.x, v.y, v.z, v.w);
 	}
 	

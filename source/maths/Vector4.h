@@ -23,9 +23,9 @@ public:
 	Vector4( T x, T y, T z, T w );
 	~Vector4();
 	
-	Vector4<T> Cross(Vector4<T>& other) const;
+	Vector4<T> Cross(Vector4<T> other) const;
 	
-	double Dot(Vector4<T>& other) const;
+	double Dot(Vector4<T> other) const;
 	
 	double Length() const;
 	double LengthSquared() const;

@@ -5,13 +5,16 @@
 
 template <typename T>
 class Vector4;
+class MatrixInversion;
 
 template <typename T>
 class Matrix4
 {
 private:
 	friend Vector4<T>;
-	
+    friend MatrixInversion;
+
+public:
 	union MatrixData {
 		/*
 		 * o ---> Y
@@ -31,7 +34,11 @@ private:
 	} data;
 	
 public:
-	Matrix4() {};
+	Matrix4() : Matrix4(T(1)) {};
+
+    Matrix4(T x);
+
+    Matrix4(T[16]);
 	
 	Matrix4(T _00, T _01, T _02, T _03,
 		T _10, T _11, T _12, T _13,
@@ -41,7 +48,9 @@ public:
 	
 	static Matrix4<T> LookAlong(Vector4<T> eyePosition, Vector4<T> direction, Vector4<T> up);
 	static Matrix4<T> LookAt(const Vector4<T> eyePosition, const Vector4<T> targetPosition, const Vector4<T> up);
-	static Matrix4<T> Perspective(const T fov, const T ratio, const T zNear, const T zFar); 
+	static Matrix4<T> Perspective(const T fov, const T ratio, const T zNear, const T zFar);
+
+	static Matrix4<T> Identity();
 	
 	void Concatenate(const Matrix4<T>& other);
 	
@@ -50,9 +59,23 @@ public:
 	void SetScaling(double x, double y, double z);
 	
 	void PrintContents();
+
+	void Inverse();
+	void Transpose();
+
+	Matrix4<T> Inversed() const;
+	Matrix4<T> Transposed() const;
+
+	const T* GetDataPointer() const;
 	
 	const T operator()(int x, int y) const;
 	const T* operator[](int index) const;
+
+    Matrix4<T> operator*(const T& factor) const;
+    Matrix4<T> operator/(const T& factor) const;
+
+    Matrix4<T> operator*=(const T& factor);
+    Matrix4<T> operator/=(const T& factor);
 	
 	Matrix4<T> operator*(const Matrix4<T>& other) const;
 	Matrix4<T> operator/(const Matrix4<T>& other) const;

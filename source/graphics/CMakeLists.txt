@@ -12,6 +12,7 @@ target_link_libraries(${PROJECT_NAME} ${GLFW_LIBRARIES} dl)
 target_link_libraries(${PROJECT_NAME} Amber-Sun.Maths)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ..)
+target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW_INCLUDE_DIRS})
 
 if (${USE_CONAN})
 	target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})

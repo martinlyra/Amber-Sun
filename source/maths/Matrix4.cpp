@@ -1,4 +1,5 @@
 #include "Matrix4.h"
+#include "Matrix4-Functions.h"
 
 #include "meta.h"
 
@@ -9,6 +10,24 @@
 #include <math.h>
 
 TEMPLATE_IMPLEMENT_MATHEMATICAL_TYPES(Matrix4);
+
+template<typename T>
+Matrix4<T>::Matrix4(T x) :
+        Matrix4(
+                x, 0, 0, 0,
+                0, x, 0, 0,
+                0, 0, x, 0,
+                0, 0, 0, x
+        )
+{}
+
+template<typename T>
+Matrix4<T>::Matrix4(T* array) {
+    auto aa = &data.asArray;
+
+    for (int i = 0; i < 4*4; i++)
+        (*aa)[i] = array[i];
+}
 
 template <typename T>
 Matrix4<T>::Matrix4(
@@ -26,19 +45,45 @@ Matrix4<T>::Matrix4(
 	am->_30 = _30; am->_31 = _31; am->_32 = _32; am->_33 = _33;
 }
 
+//#define USE_OUS
 template <typename T>
 Matrix4< T > Matrix4<T>::LookAlong(Vector4< T > eyePosition, Vector4< T > direction, Vector4< T > up)
 {
-	auto f = direction.Normalized();
-	auto s = f.Cross(up).Normalized();
-	auto u = s.Cross(f);
-	
+#ifdef USE_OUS
+	auto o = direction.Normalized(); // orientation
+	auto u = up.Normalized(); // up
+	auto s = o.Cross(u); // side
+
+	return Matrix4<T>{
+		-s.x, u.x, o.x, eyePosition.x,
+		-s.y, u.y, o.y, eyePosition.y,
+		-s.z, u.z, o.z, eyePosition.z,
+		T(0), T(0), T(0), T(1)
+	};
+#elif defined(USE_FRU)
+    auto f = direction.Normalized(); // forward
+    auto r = up.Normalized().Cross(f); // right
+    auto u = f.Cross(r); // up
+
+	return Matrix4<T>(
+		r.x, u.x, f.x, eyePosition.x,
+		r.y, u.y, f.y, eyePosition.y,
+		r.z, u.z, f.z, eyePosition.z,
+		T(0), T(0), T(0), T(1)
+	);
+#else
+    /* GLM's Right-handed LookAt */
+    auto f = direction.Normalized(); // forward
+    auto s = f.Cross(up).Normalized(); // side (right-facing)
+    auto u = s.Cross(f); // up
+
 	return Matrix4<T>(
 		s.x, u.x, -f.x, 0.0f,
 		s.y, u.y, -f.y, 0.0f,
 		s.z, u.z, -f.z, 0.0f,
-		-s.Dot(eyePosition), u.Dot(eyePosition), f.Dot(eyePosition), 1.0f
+		-s.Dot(eyePosition), -u.Dot(eyePosition), f.Dot(eyePosition), 1.0f
 	);
+#endif
 }
 
 template <typename T>
@@ -56,25 +101,27 @@ Matrix4< T > Matrix4<T>::Perspective(const T fov, const T ratio, const T zNear, 
 	const T arg = tan(alpha/2);
 	
 	return Matrix4<T>(
-		(1.0f / ( arg * ratio )),
-		0.0f,
-		0.0f,
-		0.0f,
-		
-		0.0f,
-		(1.0f / arg),
-		0.0f,
-		0.0f,
-		
-		0.0f,
-		0.0f,
-		- ((zFar + zNear) / zDistance),
-		- 1.0f,
-		
-		0.0f,
-		0.0f,
-		- (2.0f * zFar * zNear / zDistance),
-		0.0f
+		T(1.0f / (ratio * arg)),
+		//T(1.0f / arg),
+        T(0),
+        T(0),
+        T(0),
+
+        T(0),
+		T(1.0f / arg),
+		//T(ratio / arg),
+        T(0),
+        T(0),
+
+        T(0),
+        T(0),
+		- T((zFar + zNear) / zDistance),
+		- T(1),
+
+        T(0),
+        T(0),
+		- T(2.0f * zFar * zNear / zDistance),
+        T(0)
 	);
 }
 
@@ -298,3 +345,76 @@ void Matrix4<T>::PrintContents()
 		std::printf("\n");
 	}
 }
+
+template<typename T>
+void Matrix4<T>::Inverse()
+{
+	*this = this->Inversed();
+}
+
+template<typename T>
+Matrix4<T> Matrix4<T>::Inversed() const
+{
+    auto mat = Matrix4<T>::Identity();
+
+    MatrixInversion::Bruteforce<T>(mat, mat);
+
+    return mat;
+}
+
+template<typename T>
+void Matrix4<T>::Transpose()
+{
+	*this = this->Transposed();
+}
+
+template<typename T>
+Matrix4<T> Matrix4<T>::Transposed() const {
+	auto am = this->data.asMatrix;
+
+	return Matrix4<T>(
+		am._00, am._10, am._20, am._30,
+		am._01, am._11, am._21, am._31,
+		am._02, am._12, am._22, am._32,
+		am._03, am._13, am._23, am._33
+	);
+}
+
+template<typename T>
+Matrix4<T> Matrix4<T>::operator*(const T &factor) const {
+    auto mat = *this;
+    return mat *= factor;
+}
+
+template<typename T>
+Matrix4<T> Matrix4<T>::operator/(const T &factor) const {
+    auto mat = *this;
+	return mat /= factor;
+}
+
+template<typename T>
+Matrix4<T> Matrix4<T>::operator*=(const T &factor) {
+    auto aa = &this->data.asArray;
+    for (int i = 0; i < 4*4; i++)
+        (*aa)[i] *= factor;
+    return *this;
+}
+
+template<typename T>
+Matrix4<T> Matrix4<T>::operator/=(const T &factor) {
+	return *this *= 1/factor;
+}
+
+template<typename T>
+Matrix4<T> Matrix4<T>::Identity() {
+    auto identity = Matrix4<T>();
+    identity.SetAsIdentity();
+    return identity;
+}
+
+template<typename T>
+const T* Matrix4<T>::GetDataPointer() const {
+	return data.asArray;
+}
+
+

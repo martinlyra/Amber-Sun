@@ -24,7 +24,7 @@ Vector4<T>::~Vector4()
 }
 
 template<typename T>
-Vector4< T > Vector4<T>::Cross(Vector4< T >& other) const
+Vector4< T > Vector4<T>::Cross(Vector4< T > other) const
 {
 	return Vector4<T>(
 		(this->y * other.z) - (this->z * other.y),
@@ -35,7 +35,7 @@ Vector4< T > Vector4<T>::Cross(Vector4< T >& other) const
 }
 
 template <typename T>
-double Vector4<T>::Dot(Vector4< T >& other) const
+double Vector4<T>::Dot(Vector4< T > other) const
 {
 	return ( this-> x * other.x + this->y * other.y + this->z * other.z);
 }
